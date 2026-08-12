@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSystem } from "@/context/RealtimeProvider";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import {
   Users,
   ShieldAlert,
@@ -9,10 +10,7 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronUp,
-  UserCheck,
-  UserX,
   Building2,
-  BadgeAlert,
 } from "lucide-react";
 
 interface ZoneOccupancy {
@@ -129,6 +127,50 @@ const BASE_ZONE_OCCUPANCY: ZoneOccupancy[] = [
 export default function AdminHeadcountPanel() {
   const { isEmergency, zones } = useSystem();
   const [showDetails, setShowDetails] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    // Check role in localStorage
+    try {
+      const stored = localStorage.getItem("safetynet_profile");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.role === "admin" || parsed.email?.includes("admin")) {
+          setIsAdmin(true);
+        }
+      }
+    } catch {
+      // Ignore
+    }
+
+    // Check role in Supabase if configured
+    if (isSupabaseConfigured()) {
+      try {
+        const supabase = createClient();
+        supabase.auth.getUser().then(({ data: { user } }) => {
+          if (user) {
+            supabase
+              .from("profiles")
+              .select("role")
+              .eq("id", user.id)
+              .single()
+              .then(({ data }) => {
+                if (data?.role === "admin") {
+                  setIsAdmin(true);
+                }
+              });
+          }
+        });
+      } catch {
+        // Ignore
+      }
+    }
+  }, []);
+
+  // HIDE ENTIRE PANEL IF USER IS NOT AN ADMIN (Operator role will not see this)
+  if (!isAdmin) {
+    return null;
+  }
 
   // Dynamic headcount distribution based on active fire status
   const redZones = BASE_ZONE_OCCUPANCY.filter((z) => {
@@ -163,7 +205,7 @@ export default function AdminHeadcountPanel() {
   const redPercent = Math.round((redCount / totalPersonnel) * 100);
 
   return (
-    <div className="bg-[#0f141e] border border-[#1e2738] rounded-2xl p-5 shadow-xl transition-all">
+    <div className="bg-[#0f141e] border border-[#1e2738] rounded-2xl p-5 shadow-xl transition-all animate-fade-in">
       {/* Panel Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#1c2536]">
         <div className="flex items-center gap-3">
@@ -176,7 +218,7 @@ export default function AdminHeadcountPanel() {
                 Admin Headcount & Occupancy Monitor
               </h2>
               <span className="px-2 py-0.5 rounded-md bg-purple-500/20 border border-purple-500/40 text-[10px] font-bold text-purple-300 uppercase tracking-wider">
-                Admin Role
+                Admin Only
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
