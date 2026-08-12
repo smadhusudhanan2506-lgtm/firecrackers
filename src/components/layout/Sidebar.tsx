@@ -132,7 +132,7 @@ export default function Sidebar({
             </div>
             {isExpanded && (
               <div className="min-w-0">
-                <h2 className="text-[16px] font-extrabold text-white tracking-wide truncate">
+                <h2 className="text-[17px] font-extrabold text-white tracking-wide truncate">
                   SAFETYNET
                 </h2>
                 <p className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">
@@ -153,7 +153,7 @@ export default function Sidebar({
           ) : (
             <button
               onClick={() => setCollapsed(!collapsed)}
-              className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-[#1a2332] transition-all cursor-pointer"
+              className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-[#1a2332] transition-all cursor-pointer"
               title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               <ChevronLeft
@@ -177,7 +177,7 @@ export default function Sidebar({
           </div>
         )}
 
-        {/* Nav Links with larger, clearer font and comfortable touch targets */}
+        {/* Nav Links with big, prominent, readable font and comfortable spacing */}
         <nav className="flex-1 px-3.5 py-5 space-y-2.5 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -190,19 +190,19 @@ export default function Sidebar({
                 key={item.href}
                 href={item.href}
                 onClick={() => isMobile && setMobileOpen(false)}
-                className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-[16px] font-semibold transition-all duration-200 relative group ${
+                className={`flex items-center gap-4 px-4 py-3.5 rounded-xl text-[17px] font-bold transition-all duration-200 relative group ${
                   active
                     ? "bg-blue-600/15 text-blue-400 border border-blue-500/40 shadow-sm"
-                    : "text-gray-400 hover:text-white hover:bg-[#161e2b]"
+                    : "text-gray-300 hover:text-white hover:bg-[#161e2b]"
                 }`}
               >
-                <Icon className="w-[20px] h-[20px] shrink-0" />
+                <Icon className="w-[22px] h-[22px] shrink-0" />
                 {isExpanded && <span className="truncate">{item.label}</span>}
                 {hasNotification && (
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm shadow-red-500/50" />
                 )}
                 {!isExpanded && !isMobile && (
-                  <div className="absolute left-full ml-3 px-3 py-1.5 bg-[#1a2332] text-white text-xs font-semibold rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-lg z-50 whitespace-nowrap border border-[#2b394e]">
+                  <div className="absolute left-full ml-3 px-3 py-1.5 bg-[#1a2332] text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-lg z-50 whitespace-nowrap border border-[#2b394e]">
                     {item.label}
                   </div>
                 )}
@@ -213,9 +213,9 @@ export default function Sidebar({
           {/* Admin Navigation Section */}
           {profile?.role === "admin" && (
             <>
-              <div className="pt-5 pb-1 px-4">
+              <div className="pt-5 pb-1.5 px-4">
                 {isExpanded && (
-                  <span className="text-[12px] font-bold text-gray-400 uppercase tracking-wider">
+                  <span className="text-[13px] font-extrabold text-gray-400 uppercase tracking-wider">
                     Admin
                   </span>
                 )}
@@ -229,16 +229,16 @@ export default function Sidebar({
                       key={item.href}
                       href={item.href}
                       onClick={() => isMobile && setMobileOpen(false)}
-                      className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-[16px] font-semibold transition-all duration-200 relative group ${
+                      className={`flex items-center gap-4 px-4 py-3.5 rounded-xl text-[17px] font-bold transition-all duration-200 relative group ${
                         active
                           ? "bg-blue-600/15 text-blue-400 border border-blue-500/40 shadow-sm"
-                          : "text-gray-400 hover:text-white hover:bg-[#161e2b]"
+                          : "text-gray-300 hover:text-white hover:bg-[#161e2b]"
                       }`}
                     >
-                      <Icon className="w-[20px] h-[20px] shrink-0" />
+                      <Icon className="w-[22px] h-[22px] shrink-0" />
                       {isExpanded && <span className="truncate">{item.label}</span>}
                       {!isExpanded && !isMobile && (
-                        <div className="absolute left-full ml-3 px-3 py-1.5 bg-[#1a2332] text-white text-xs font-semibold rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-lg z-50 whitespace-nowrap border border-[#2b394e]">
+                        <div className="absolute left-full ml-3 px-3 py-1.5 bg-[#1a2332] text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity shadow-lg z-50 whitespace-nowrap border border-[#2b394e]">
                           {item.label}
                         </div>
                       )}
@@ -258,10 +258,10 @@ export default function Sidebar({
             </div>
             {isExpanded && (
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white truncate">
+                <p className="text-[15px] font-bold text-white truncate">
                   {profile?.name || "Safety User"}
                 </p>
-                <p className="text-[11px] text-gray-400 capitalize font-medium">
+                <p className="text-[11px] text-gray-400 capitalize font-semibold">
                   {profile?.role || "operator"}
                 </p>
               </div>
@@ -289,9 +289,9 @@ export default function Sidebar({
         />
       )}
 
-      {/* Mobile / Tablet Drawer Panel (width 80 / 320px for comfortable finger tapping) */}
+      {/* Mobile / Tablet Drawer Panel (width 320px for comfortable finger tapping) */}
       <aside
-        className={`md:hidden fixed top-0 left-0 h-full z-50 w-80 shadow-2xl transform transition-transform duration-300 ease-out ${
+        className={`md:hidden fixed top-0 left-0 h-full z-50 w-[320px] max-w-[85vw] shadow-2xl transform transition-transform duration-300 ease-out ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -301,7 +301,7 @@ export default function Sidebar({
       {/* Desktop / Laptop / PC Sticky Sidebar */}
       <aside
         className={`hidden md:flex flex-col border-r border-[#1c2433] sticky top-0 h-screen transition-all duration-300 shrink-0 z-30 ${
-          collapsed ? "w-[76px]" : "w-[275px]"
+          collapsed ? "w-[76px]" : "w-[285px]"
         }`}
       >
         <SidebarContent isMobile={false} />
