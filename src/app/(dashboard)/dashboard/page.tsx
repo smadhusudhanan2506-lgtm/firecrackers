@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSystem } from "@/context/RealtimeProvider";
 import { getApiUrl } from "@/lib/api";
+import AdminHeadcountPanel from "@/components/dashboard/AdminHeadcountPanel";
 import {
   Flame,
   MapPin,
@@ -79,7 +80,7 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-2xl font-bold text-white">Dashboard</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Real-time safety monitoring overview
+            Real-time safety monitoring overview & personnel headcount
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -207,6 +208,9 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Admin Headcount & Occupancy Monitor (Red, Orange, and Green areas) */}
+      <AdminHeadcountPanel />
 
       {/* System Info */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

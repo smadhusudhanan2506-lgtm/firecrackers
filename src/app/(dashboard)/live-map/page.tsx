@@ -2,6 +2,7 @@
 
 import FactoryMap from "@/components/map/FactoryMap";
 import MapLegend from "@/components/map/MapLegend";
+import AdminHeadcountPanel from "@/components/dashboard/AdminHeadcountPanel";
 import { useSystem } from "@/context/RealtimeProvider";
 import { Map, AlertTriangle, Shield } from "lucide-react";
 
@@ -64,6 +65,9 @@ export default function LiveMapPage() {
           </div>
         </div>
       )}
+
+      {/* Admin Headcount Panel (Red, Orange, and Green areas) */}
+      <AdminHeadcountPanel />
 
       {/* Main Interactive Map Canvas */}
       <div className="bg-[#121722] border border-[#1e2738] rounded-2xl p-3 sm:p-5 shadow-xl">

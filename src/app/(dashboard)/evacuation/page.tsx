@@ -1,6 +1,7 @@
 "use client";
 
 import FactoryMap from "@/components/map/FactoryMap";
+import AdminHeadcountPanel from "@/components/dashboard/AdminHeadcountPanel";
 import { useSystem } from "@/context/RealtimeProvider";
 import {
   Route,
@@ -66,6 +67,9 @@ export default function EvacuationPage() {
         </div>
       </div>
 
+      {/* Admin Headcount Panel (Red, Orange, and Green areas) */}
+      <AdminHeadcountPanel />
+
       {/* Evacuation Route Steps (during emergency) */}
       {isEmergency && (
         <div className="bg-[#121722] border border-[#1e2738] rounded-2xl p-4 sm:p-5">
@@ -121,15 +125,17 @@ export default function EvacuationPage() {
         <ExitCard name="Main South Exits" location="Direct to Assembly Point" accessible={true} />
       </div>
 
-      {/* Assembly Point Card */}
-      <div className="bg-green-500/5 border border-green-500/20 rounded-2xl p-4 sm:p-5 flex items-start gap-3">
+      {/* Assembly point description card */}
+      <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 flex items-start gap-3">
         <MapPin className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
         <div>
-          <h3 className="text-sm font-bold text-green-400 uppercase tracking-wider">
-            Designated Assembly Point (Outside Building)
-          </h3>
-          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-            Located directly outside the South perimeter exit. After exiting the building via the safe green routes, all personnel must immediately report to the safety officer at the assembly point for headcount verification.
+          <h4 className="text-sm font-bold text-green-400">
+            DESIGNATED ASSEMBLY POINT (OUTSIDE BUILDING)
+          </h4>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Located directly outside the South perimeter exit. After exiting the
+            building via the safe green routes, all personnel must immediately
+            report to the safety officer at the assembly point for headcount verification.
           </p>
         </div>
       </div>
@@ -146,33 +152,33 @@ function RouteStep({
   step: number;
   title: string;
   desc: string;
-  status: "action" | "danger" | "safe";
+  status: "safe" | "danger" | "action";
 }) {
-  const colors = {
-    action: "border-blue-500/25 bg-blue-500/10",
-    danger: "border-red-500/25 bg-red-500/10",
-    safe: "border-green-500/25 bg-green-500/10",
+  const statusStyles = {
+    safe: "border-green-500/30 bg-green-500/5",
+    danger: "border-red-500/30 bg-red-500/5",
+    action: "border-blue-500/30 bg-blue-500/5",
   };
-  const textColors = {
-    action: "text-blue-400",
-    danger: "text-red-400",
-    safe: "text-green-400",
+
+  const badgeStyles = {
+    safe: "bg-green-500/20 text-green-400",
+    danger: "bg-red-500/20 text-red-400",
+    action: "bg-blue-500/20 text-blue-400",
   };
 
   return (
-    <div className={`flex items-start gap-3 p-3 rounded-xl border ${colors[status]}`}>
+    <div
+      className={`border rounded-xl p-3.5 flex items-start gap-3 ${statusStyles[status]}`}
+    >
       <div
-        className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${textColors[status]} bg-background/70`}
+        className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${badgeStyles[status]}`}
       >
         {step}
       </div>
-      <div className="flex-1 min-w-0">
-        <p className={`text-xs sm:text-sm font-bold ${textColors[status]} truncate`}>
-          {title}
-        </p>
+      <div>
+        <h4 className="text-xs font-bold text-white">{title}</h4>
         <p className="text-[11px] text-muted-foreground mt-0.5">{desc}</p>
       </div>
-      <ArrowRight className={`w-3.5 h-3.5 ${textColors[status]} shrink-0 mt-1`} />
     </div>
   );
 }
@@ -187,23 +193,33 @@ function ExitCard({
   accessible: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between p-3.5 rounded-xl border border-[#1e2738] bg-[#121722]">
+    <div
+      className={`border rounded-xl p-3.5 flex items-center justify-between ${
+        accessible
+          ? "border-green-500/20 bg-green-500/5"
+          : "border-red-500/20 bg-red-500/5 opacity-60"
+      }`}
+    >
       <div className="flex items-center gap-2.5">
-        <span className="text-base">🚪</span>
+        <div
+          className={`w-2.5 h-6 rounded-sm ${
+            accessible ? "bg-green-500" : "bg-red-500"
+          }`}
+        />
         <div>
-          <p className="text-xs sm:text-sm font-bold text-white">{name}</p>
+          <h4 className="text-xs font-bold text-white">{name}</h4>
           <p className="text-[10px] text-muted-foreground">{location}</p>
         </div>
       </div>
-      {accessible ? (
-        <span className="flex items-center gap-1 text-[10px] font-bold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-md border border-green-500/20">
-          <CheckCircle2 className="w-3 h-3" /> SAFE EXIT
-        </span>
-      ) : (
-        <span className="flex items-center gap-1 text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-md border border-red-500/20">
-          <AlertTriangle className="w-3 h-3" /> COMPROMISED / AVOID
-        </span>
-      )}
+      <span
+        className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+          accessible
+            ? "bg-green-500/15 text-green-400"
+            : "bg-red-500/15 text-red-400"
+        }`}
+      >
+        {accessible ? "SAFE EXIT" : "BLOCKED"}
+      </span>
     </div>
   );
 }
