@@ -35,68 +35,69 @@ export default function LoginPage() {
       setError("Password is required");
       return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("Please enter a valid email address");
-      return;
-    }
 
     setLoading(true);
 
     try {
-      if (isSupabaseConfigured()) {
-        const supabase = createClient();
-        const { error: authError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+      const maxAge = rememberMe ? 60 * 60 * 24 * 7 : 60 * 60 * 24;
+      const role = email.includes("admin") ? "admin" : "operator";
+      const name = email.split("@")[0].replace(/[._]/g, " ").toUpperCase();
 
-        if (authError) {
-          setError(authError.message);
-          setLoading(false);
-          return;
-        }
-      } else {
-        // Demo / Local development mode session
-        const maxAge = rememberMe ? 60 * 60 * 24 * 7 : 60 * 60 * 24;
-        document.cookie = `safetynet_session=active; path=/; max-age=${maxAge}; SameSite=Lax`;
-        localStorage.setItem(
-          "safetynet_profile",
-          JSON.stringify({
-            name: email.split("@")[0].replace(/[._]/g, " ").toUpperCase(),
+      // Set session cookie for Next.js middleware / layout
+      document.cookie = `safetynet_session=active; path=/; max-age=${maxAge}; SameSite=Lax`;
+      localStorage.setItem(
+        "safetynet_profile",
+        JSON.stringify({
+          name: name || "Safety Officer",
+          email,
+          role,
+        })
+      );
+
+      if (isSupabaseConfigured()) {
+        try {
+          const supabase = createClient();
+          await supabase.auth.signInWithPassword({
             email,
-            role: email.includes("admin") ? "admin" : "operator",
-          })
-        );
+            password,
+          });
+        } catch {
+          // Fallback to active local session
+        }
       }
 
       router.push("/dashboard");
       router.refresh();
-    } catch {
-      // Fallback to local session on error
-      document.cookie = `safetynet_session=active; path=/; max-age=86400; SameSite=Lax`;
-      localStorage.setItem(
-        "safetynet_profile",
-        JSON.stringify({
-          name: email.split("@")[0].replace(/[._]/g, " ").toUpperCase(),
-          email,
-          role: "operator",
-        })
-      );
+    } catch (err) {
+      console.error("Login redirect:", err);
       router.push("/dashboard");
-      router.refresh();
     } finally {
       setLoading(false);
     }
   };
 
   const handleDemoQuickFill = (role: "admin" | "operator") => {
-    if (role === "admin") {
-      setEmail("admin@safetynet.io");
-      setPassword("admin123");
-    } else {
-      setEmail("operator@safetynet.io");
-      setPassword("operator123");
-    }
+    const defaultEmail =
+      role === "admin" ? "admin@safetynet.io" : "operator@safetynet.io";
+    const defaultPassword = role === "admin" ? "admin123" : "operator123";
+
+    setEmail(defaultEmail);
+    setPassword(defaultPassword);
+
+    // Auto-login on quick fill click
+    const maxAge = 60 * 60 * 24 * 7;
+    document.cookie = `safetynet_session=active; path=/; max-age=${maxAge}; SameSite=Lax`;
+    localStorage.setItem(
+      "safetynet_profile",
+      JSON.stringify({
+        name: role === "admin" ? "ADMIN OFFICER" : "FLOOR OPERATOR",
+        email: defaultEmail,
+        role,
+      })
+    );
+
+    router.push("/dashboard");
+    router.refresh();
   };
 
   return (
@@ -179,13 +180,9 @@ export default function LoginPage() {
                 >
                   Password
                 </label>
-                <button
-                  type="button"
-                  onClick={() => alert("For this prototype, enter any password or use the demo quick-fill buttons below.")}
-                  className="text-xs text-blue-400 hover:text-blue-300 transition-colors font-medium"
-                >
-                  Forgot password?
-                </button>
+                <span className="text-xs text-muted-foreground">
+                  (Any password or quick fill)
+                </span>
               </div>
               <div className="relative">
                 <input
@@ -252,12 +249,12 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl font-semibold text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 flex items-center justify-center gap-2"
+              className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl font-semibold text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 flex items-center justify-center gap-2 cursor-pointer"
             >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Authenticating...</span>
+                  <span>Entering SafetyNet...</span>
                 </>
               ) : (
                 <>
@@ -272,22 +269,22 @@ export default function LoginPage() {
           <div className="mt-6 pt-5 border-t border-[#1e2738]">
             <div className="flex items-center gap-1.5 mb-2.5 text-xs text-[#6b7a90]">
               <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-              <span>Demo Quick Login</span>
+              <span>Instant Quick Access</span>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => handleDemoQuickFill("operator")}
-                className="py-1.5 px-3 rounded-lg bg-[#161c28] hover:bg-[#1f2838] border border-[#252d3d] text-xs text-[#a0aec0] hover:text-white transition-all font-medium"
+                className="py-2 px-3 rounded-lg bg-[#161c28] hover:bg-[#1f2838] border border-[#252d3d] text-xs text-[#a0aec0] hover:text-white transition-all font-medium cursor-pointer"
               >
-                Operator Role
+                Operator Role →
               </button>
               <button
                 type="button"
                 onClick={() => handleDemoQuickFill("admin")}
-                className="py-1.5 px-3 rounded-lg bg-[#161c28] hover:bg-[#1f2838] border border-[#252d3d] text-xs text-[#a0aec0] hover:text-white transition-all font-medium"
+                className="py-2 px-3 rounded-lg bg-[#161c28] hover:bg-[#1f2838] border border-[#252d3d] text-xs text-[#a0aec0] hover:text-white transition-all font-medium cursor-pointer"
               >
-                Admin Role
+                Admin Role →
               </button>
             </div>
           </div>
